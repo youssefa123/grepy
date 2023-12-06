@@ -27,3 +27,34 @@ class NFA:
 
         # Check if any of the current states is an accept state
         return bool(current_states & self.accept_states)
+
+
+# NFA for the regular (0+1)*1
+nfa = NFA()
+
+# Adding transitions according to the regex (0+1)*1
+nfa.add_transition(0, '0', 1)
+nfa.add_transition(0, '1', 1)
+nfa.add_transition(1, '0', 1)
+nfa.add_transition(1, '1', 1)
+nfa.add_transition(1, '1', 2)  # Transition to accept state on reading '1'
+
+nfa.set_accept_state(2)
+
+def test_file_with_nfa(file_path, nfa):
+    results = {}
+    with open(file_path, 'r') as file:
+        for line in file:
+            # Remove newline and whitespace
+            cleaned_line = line.strip()
+            # Test with NFA
+            results[cleaned_line] = nfa.is_accepted(cleaned_line)
+    return results
+
+
+
+file_path = '../data/inputFile2.txt'
+
+results_from_file = test_file_with_nfa(file_path, nfa)
+for line, result in results_from_file.items():
+    print(f"'{line}': {'Accepted' if result else 'Rejected'}")
