@@ -25,3 +25,4 @@ alphabet = learn_alphabet(file_path)
 
 # Prints a sorted list of characters in the file 
 print(f"Alphabet: {sorted(list(alphabet))}")
+
