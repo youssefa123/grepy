@@ -60,7 +60,7 @@ if __name__ == '__main__':
     dfa.add_transition(0, 'b', 3) 
     dfa.add_transition(2, 'a', 3)
     dfa.add_transition(3, 'a', 3)
-    dfa.add_transition(3, 'b', 2)
+    dfa.add_transition(3, 'b', 3)
 
     dfa.set_accept_state(2)
 
