@@ -49,11 +49,19 @@ class DFA:
 if __name__ == '__main__':
     dfa = DFA()
 
-    # DFA for the regex a+b*
+    # states for regex a+b*
+    #Adding a dead state to fix error for accepting strings it shouldn't
     dfa.add_transition(0, 'a', 1)
     dfa.add_transition(1, 'a', 1)
     dfa.add_transition(1, 'b', 2)
     dfa.add_transition(2, 'b', 2)
+
+    #dead state transition
+    dfa.add_transition(0, 'b', 3) 
+    dfa.add_transition(2, 'a', 3)
+    dfa.add_transition(3, 'a', 3)
+    dfa.add_transition(3, 'b', 2)
+
     dfa.set_accept_state(2)
 
     # Read the input file and test with DFA
