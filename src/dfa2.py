@@ -48,4 +48,26 @@ class DFA:
     
 if __name__ == '__main__':
     dfa = DFA()
+
+    # DFA for the regex a+b*
+    dfa.add_transition(0, 'a', 1)
+    dfa.add_transition(1, 'a', 1)
+    dfa.add_transition(1, 'b', 2)
+    dfa.add_transition(2, 'b', 2)
+    dfa.set_accept_state(2)
+
+    # Read the input file and test with DFA
+    file_path = '../data/inputFile3.txt'
+    with open(file_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            result = 'Accepted' if dfa.is_accepted(line) else 'Rejected'
+            print(f"'{line}': {result}")
+
+    # Output the DFA in DOT format
+    dot = dfa.to_dot()
+    output_path = '../output/dfa2_output'  
+    dot.render(output_path, format='dot', view=False)
+    print(f"The DOT representation has been saved to {output_path}.dot")
+   
     
