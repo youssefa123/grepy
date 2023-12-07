@@ -20,8 +20,6 @@ class NFA:
         current_states = {0}  # Start state is 0
 
         for char in input_string:
-            if char not in {'0', '1'}:
-                return False  # Rejects strings with characters other than 0 and 1
             next_states = set()
             for state in current_states:
                 if (state, char) in self.transitions:
@@ -69,11 +67,13 @@ if __name__ == '__main__':
     nfa = NFA()
 
     # transitions  to the regex (0+1)*1
-    nfa.add_transition(0, '0', 0)
-    nfa.add_transition(0, '1', 0)
+    nfa.add_transition(0, '0', 1)
     nfa.add_transition(0, '1', 1)
+    nfa.add_transition(1, '0', 1)
+    nfa.add_transition(1, '1', 1)
+    nfa.add_transition(1, '1', 2)
     nfa.set_accept_state(1) #Fixed error
-    
+    nfa.set_accept_state(2)
 
     
     file_path = '../data/inputFile2.txt' 
