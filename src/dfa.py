@@ -23,3 +23,14 @@ class DFA:
 
     def set_accept_state(self, state):
         self.accept_states.add(state)
+
+    def is_accepted(self, input_string):
+        current_state = self.start_state
+        for char in input_string:
+            if (current_state, char) in self.transitions:
+                current_state = self.transitions[(current_state, char)]
+            else:
+                return False  # If no transition exists for the input char, reject the string
+        return current_state in self.accept_states
+    
+    
