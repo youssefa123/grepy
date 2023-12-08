@@ -22,7 +22,7 @@ class NFAState:
 
         return closure_set  
 
-#create NFA from regex Initialized start, current and accept state
+#create NFA from regex 
 def regex_to_nfa(regex):
     start_state = NFAState("start")  # Initial state of the NFA
     current_state = start_state
