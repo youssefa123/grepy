@@ -87,3 +87,53 @@ def nfa_to_dfa(start_nfa_state):
             unprocessed_states.append(next_nfa_state)
 
     return dfa_states
+
+# generates a DOT representation of a DFA
+def generate_dot(dfa_states):
+    dot_output = "digraph DFA {\n"
+    dot_output += "    rankdir=LR;\n"
+    dot_output += "    size=\"9,5\"\n"
+    dot_output += "    node [shape = doublecircle]; "
+
+    for state in dfa_states.values():
+        if state.is_final:
+            dot_output += f" S{state.id} "
+    
+    dot_output += ";\n    node [shape = circle];\n"
+
+    # Iteratew through DFA states to identify and labels the accept state
+    for state in dfa_states.values():
+        for char, next_state in state.transitions.items():
+            dot_output += f"    S{state.id} -> S{next_state.id} [ label = \"{char}\" ];\n"
+    
+    # CLose the dot representation
+    dot_output += "}\n"
+    return dot_output
+
+def main():
+    regex = input("Enter a simple REGEX (like 'a', 'ab'): ")
+    print(f"Building DFA for the regex: '{regex}'")
+
+    nfa_start_state = regex_to_nfa(regex)
+    dfa_states = nfa_to_dfa(nfa_start_state)
+
+    # Generate DOT format output
+    dot_output = generate_dot(dfa_states)
+    dot_file_name = "dfa_graph.dot"
+    with open(dot_file_name, "w") as file:
+        file.write(dot_output)
+
+    print(f"DOT file generated as '{dot_file_name}'.")
+
+    # finds the start state for the DFA
+    dfa_start_state = dfa_states[nfa_start_state]
+
+    # example inputs
+    print("\nTesting the DFA with example inputs:")
+    test_inputs = ["a", "ab", "b", "ba"]  
+    for test_input in test_inputs:
+        result = "Accepted" if simulate_dfa(dfa_start_state, test_input) else "Rejected"
+        print(f"Test Input: '{test_input}', Result: {result}")
+
+if __name__ == "__main__":
+    main()
