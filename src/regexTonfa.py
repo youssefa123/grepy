@@ -45,6 +45,16 @@ def regex_to_nfa(regex):
             i += 1
             continue
 
+         # Handling Plus '+'
+        elif i + 1 < len(regex) and regex[i + 1] == '+':
+            new_state = NFAState(char)
+            current_state.define_transition(char, new_state)
+            new_state.define_transition(None, current_state)  
+            previous_state = current_state
+            current_state = new_state
+            i += 2  
+            continue
+
         elif char == '$':
             current_state.define_transition(None, accept_state)
 
@@ -84,7 +94,7 @@ def main():
     regex = input("Enter a REGEX: ")
     nfa = regex_to_nfa(regex)
 
-    test_inputs = ["ab", 'sss']  #  TEST it here
+    test_inputs = ["a", 'sss']  #  TEST it here
     for test_input in test_inputs:
         result = "Accepted" if simulate_nfa(nfa, test_input) else "Rejected"
         print(f"Input: {test_input}, Result: {result}")
