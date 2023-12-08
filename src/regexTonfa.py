@@ -27,7 +27,9 @@ def regex_to_nfa(regex):
     start_state = NFAState("start")
     previous_state = start_state
     current_state = start_state
+    state_stack = []  # Stack to manage groups
     accept_state = NFAState("accept", final_state=True)
+    
 
     i = 0
     while i < len(regex):
@@ -44,6 +46,22 @@ def regex_to_nfa(regex):
                 current_state.define_transition(None, previous_state)
             i += 1
             continue
+
+        elif char == '(':
+            state_stack.append((previous_state, current_state))
+            new_group_start = NFAState()
+            previous_state, current_state = current_state, new_group_start
+            
+        elif char == ')':
+            # Link the group back to the main NFA
+            if state_stack:
+                group_start_previous, group_start = state_stack.pop()
+                group_end_state = NFAState()
+                current_state.define_transition(None, group_end_state)
+                group_start_previous.define_transition(None, previous_state)
+                previous_state, current_state = group_start, group_end_state
+            else:
+                raise ValueError("Unbalanced parentheses in regex")
 
          # Handling Plus '+'
         elif i + 1 < len(regex) and regex[i + 1] == '+':
@@ -72,8 +90,11 @@ def regex_to_nfa(regex):
 
         i += 1
 
-    if not regex or regex[-1] != '$':
+    # Linking to accept state
+    if not state_stack:  
         current_state.define_transition(None, accept_state)
+    else:
+        raise ValueError("Unclosed parenthesis in regex")
 
     return start_state
 
