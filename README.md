@@ -14,4 +14,11 @@ Enter a word to find: or
 C[or]neliusTheC[or]n
 
 # Testing NFA
-To test the regex to NFA please go to the src directory and run python nfa.py. It runs (0+1)*1
+To test the regex to NFA please go to the src directory and run python nfa.py to test the regex (0+1)*1 
+
+From there you then convert the nfa to dfa by entering "python dfa" which will output the dot file and return if it accepts the strings or rejects from the inputFile2.txt.
+
+To test the regex a+b*
+Go to the src directory and run python nfa2.py
+From there you then convert the nfa to dfa by entering "python dfa2.py" which will output the dot file and return if it accepts the strings or rejects from the inputFile3.txt.
+

@@ -60,7 +60,7 @@ def test_file_with_dfa(file_path, dfa):
                 results[cleaned_line] = "Rejected: Does not match the regex (0+1)*1"
     return results
 
-def main 
+
 if __name__ == '__main__':
     dfa = DFA()
 
