@@ -24,53 +24,60 @@ class NFAState:
 
 #create NFA from regex Initialized start, current and accept state
 def regex_to_nfa(regex):
-    start_state = NFAState("start")
+    start_state = NFAState("start")  # Initial state of the NFA
     current_state = start_state
-    state_stack = []  # Stack to manage groups
-    group_start_stack = []  # Stack to remember the start state of the group
-    accept_state = NFAState("accept", final_state=True)
+    state_stack = []  # Stack to manage open groups '('
+    group_start_stack = [] 
+    accept_state = NFAState("accept", final_state=True)  # Accepting state of the NFA
 
     i = 0
     while i < len(regex):
         char = regex[i]
 
         if char == '^':
-            i += 1  # Skip '^' character
+            i += 1  # Skip '^' as it denotes the start of a line in regex
             continue
 
+        #special character logic
+
         elif char == '*':
-            if group_start_stack:
-                group_start_state = group_start_stack.pop()
-                loopback_state = NFAState()
-                skip_state = NFAState()
+            if current_state:
+                loop_state = NFAState()
+                previous_state = state_stack[-1] if state_stack else start_state
+                previous_state.define_transition(None, loop_state)
+                loop_state.define_transition(None, current_state)
+                current_state = loop_state
+            i += 1
+            continue
 
-                # Create a loopback for zero or more occurrences
-                group_start_state.define_transition(None, loopback_state)
-                loopback_state.define_transition(None, skip_state)
-                loopback_state.define_transition(None, group_start_state)
-
-                current_state.define_transition(None, skip_state)
-                current_state = skip_state
-            else:
-                # Handle * for non-grouped characters
-                # Here, you would handle the * quantifier for individual characters
-                pass
+        elif char == '+':
+            if current_state:
+                plus_state = NFAState()
+                if state_stack:
+                    group_start_state = state_stack[-1]
+                    group_start_state.define_transition(None, plus_state)
+                    plus_state.define_transition(None, group_start_state)
+                else:
+                    previous_state = start_state if current_state == start_state else current_state
+                    previous_state.define_transition(None, plus_state)
+                    plus_state.define_transition(None, previous_state)
+                current_state = plus_state
             i += 1
             continue
 
         elif char == '(':
             state_stack.append(current_state)
-            group_start_state = NFAState()
-            current_state.define_transition(None, group_start_state)
-            current_state = group_start_state
-            group_start_stack.append(group_start_state)
+            new_group_start = NFAState()
+            current_state.define_transition(None, new_group_start)
+            current_state = new_group_start
+            group_start_stack.append(new_group_start)
 
         elif char == ')':
             if state_stack:
                 group_end_state = NFAState()
                 current_state.define_transition(None, group_end_state)
-                current_state = state_stack.pop()
-                current_state.define_transition(None, group_end_state)
+                group_start_state = state_stack.pop()
+                group_start_state.define_transition(None, current_state)
                 current_state = group_end_state
             else:
                 raise ValueError("Unbalanced parentheses in regex")
@@ -105,6 +112,7 @@ def regex_to_nfa(regex):
     return start_state
 
 
+
 def simulate_nfa(nfa, test_input):
     current_states = nfa.compute_epsilon_closure()
     for char in test_input:
@@ -121,7 +129,7 @@ def main():
     regex = input("Enter a REGEX: ")
     nfa = regex_to_nfa(regex)
 
-    test_inputs = ["ab", 'sss']  #  TEST it here
+    test_inputs = ["01", "00011", 'sss']  #  TEST it here
     for test_input in test_inputs:
         result = "Accepted" if simulate_nfa(nfa, test_input) else "Rejected"
         print(f"Input: {test_input}, Result: {result}")
