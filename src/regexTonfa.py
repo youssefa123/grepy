@@ -25,7 +25,8 @@ class NFAState:
 #create NFA from regex Initialized start, current and accept state
 def regex_to_nfa(regex):
     start_state = NFAState("start")
-    current_states = [start_state]
+    previous_state = start_state
+    current_state = start_state
     accept_state = NFAState("accept", final_state=True)
 
     i = 0
@@ -33,34 +34,38 @@ def regex_to_nfa(regex):
         char = regex[i]
 
         if char == '^':
-            i += 1  # Skip '^' character and continue
+            i += 1  # Skip '^' character 
+            continue
+
+        elif char == '*':
+            # added epsilon transitions for repetition
+            if previous_state and current_state:
+                previous_state.define_transition(None, current_state)
+                current_state.define_transition(None, previous_state)
+            i += 1
             continue
 
         elif char == '$':
-            for state in current_states:
-                state.define_transition(None, accept_state)
+            current_state.define_transition(None, accept_state)
 
         elif char == '|':
             new_state = NFAState()
-            for state in current_states:
-                state.define_transition(None, new_state)
-            current_states = [new_state]
-            i += 1  # Skip the next character
+            current_state.define_transition(None, new_state)
+            previous_state = current_state
+            current_state = new_state
 
         else:
-            new_states = []
-            for state in current_states:
-                new_state = NFAState(char)
-                state.define_transition(char, new_state)
-                new_states.append(new_state)
-            current_states = new_states
+            new_state = NFAState(char)
+            current_state.define_transition(char, new_state)
+            previous_state = current_state
+            current_state = new_state
 
         i += 1
 
-    for state in current_states:
-        state.define_transition(None, accept_state)
+    if not regex or regex[-1] != '$':
+        current_state.define_transition(None, accept_state)
 
-    return start_state  # This should be outside the while loop
+    return start_state
 
 
 def simulate_nfa(nfa, test_input):
@@ -76,10 +81,10 @@ def simulate_nfa(nfa, test_input):
     return any(state.final_state for state in current_states)
 
 def main():
-    regex = input("Enter a regular expression: ")
+    regex = input("Enter a REGEX: ")
     nfa = regex_to_nfa(regex)
 
-    test_inputs = ["ab"]  # Sample test inputs
+    test_inputs = ["ab", 'sss']  #  TEST it here
     for test_input in test_inputs:
         result = "Accepted" if simulate_nfa(nfa, test_input) else "Rejected"
         print(f"Input: {test_input}, Result: {result}")
