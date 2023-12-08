@@ -27,3 +27,28 @@ class DFAState:
     # Transition for any given input character to a state
     def add_transition(self, input_char, state):
         self.transitions[input_char] = state
+
+def regex_to_nfa(regex):
+    if not regex:
+        # Raise error if regex is empty
+        raise ValueError("Empty regex is not allowed")
+
+    start_state = NFAState()
+    current_state = start_state
+
+    for i, char in enumerate(regex):
+        # Create next state and define transition for each character
+        next_state = NFAState(final_state=(i == len(regex) - 1))
+        current_state.define_transition(char, next_state)
+        current_state = next_state
+
+    return start_state
+
+def simulate_dfa(dfa_start_state, input_string):
+    current_state = dfa_start_state
+    for char in input_string:
+        if char in current_state.transitions:
+            current_state = current_state.transitions[char]
+        else:
+            return False
+    return current_state.is_final
