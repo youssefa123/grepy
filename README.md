@@ -17,3 +17,8 @@ C[or]neliusTheC[or]n
 Go to the src directory 
 So cd grepy....cd grepy....cd src
 run: python regexTonfa.py
+
+# Convert NFA to DFA 
+go to the src directory and run python rungrepy.py
+It'll prompt you to enter a regex and make a nfa conversion, then it'll ask you again to enter a regex for DFA. Just put the regex and itll make the dot graph and run the text. It runs text from insdie the rungrepy.py file.
+

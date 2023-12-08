@@ -178,8 +178,8 @@ def main():
     print(f"Building DFA for the regex: '{regex}'")
 
     # To handle (ab) as a literal string
-    if regex == "(ab)":
-        regex = "\\(ab\\)"
+    if regex.startswith("(") and regex.endswith(")"):
+        regex = "\\" + regex
 
     nfa_start_state, _ = regex_to_nfa(regex)
     dfa_states = nfa_to_dfa(nfa_start_state)
@@ -202,3 +202,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
