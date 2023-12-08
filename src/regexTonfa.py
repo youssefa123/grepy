@@ -15,3 +15,46 @@ def regex_to_nfa(regex):
     current_states = [start_state]
     accept_state = NFAState("accept", final_state=True)
 
+    #index for checking through characters in Regex.
+    i = 0
+    
+    # Iterate through the characters in the regex
+    while i < len(regex):
+        char = regex[i]
+
+        #Check if the character is a '^'
+        if char == '^':
+            continue  # Skip '^' character
+        
+        # Check if the character is a '$'
+        elif char == '$':
+            # Add transitions from current states to the accept state
+            for state in current_states:
+                state.define_transition(None, accept_state)
+        
+        elif char == '|':
+            # Create a new state for alternate paths
+            new_state = NFAState()
+
+            # transitions from current state to the new state
+            for state in current_states:
+                state.define_transition(None, new_state)
+            current_states = [new_state]
+            i += 1  # Skip the next character
+        else:
+            #if the character is not a special, make new states for each current state and add transitions
+            new_states = []
+            for state in current_states:
+                new_state = NFAState(char)
+                state.define_transition(char, new_state)
+                new_states.append(new_state)
+            current_states = new_states
+
+        i += 1
+    # transitions from the final current states to the accept state
+    for state in current_states:
+        state.define_transition(None, accept_state)
+
+    return start_state
+
+
