@@ -25,76 +25,68 @@ class NFAState:
 #create NFA from regex Initialized start, current and accept state
 def regex_to_nfa(regex):
     start_state = NFAState("start")
-    previous_state = start_state
     current_state = start_state
     state_stack = []  # Stack to manage groups
     accept_state = NFAState("accept", final_state=True)
-    
 
     i = 0
     while i < len(regex):
         char = regex[i]
 
         if char == '^':
-            i += 1  # Skip '^' character 
+            i += 1  # Skip '^' character
             continue
 
         elif char == '*':
-            # added epsilon transitions for repetition
-            if previous_state and current_state:
+            if current_state:
+                previous_state = state_stack[-1] if state_stack else start_state
                 previous_state.define_transition(None, current_state)
                 current_state.define_transition(None, previous_state)
             i += 1
             continue
 
         elif char == '(':
-            state_stack.append((previous_state, current_state))
+            state_stack.append(current_state)
             new_group_start = NFAState()
-            previous_state, current_state = current_state, new_group_start
-            
+            current_state.define_transition(None, new_group_start)
+            current_state = new_group_start
+
         elif char == ')':
-            # Link the group back to the main NFA
             if state_stack:
-                group_start_previous, group_start = state_stack.pop()
+                group_start_state = state_stack.pop()
                 group_end_state = NFAState()
                 current_state.define_transition(None, group_end_state)
-                group_start_previous.define_transition(None, previous_state)
-                previous_state, current_state = group_start, group_end_state
+                current_state = group_end_state
             else:
                 raise ValueError("Unbalanced parentheses in regex")
 
-         # Handling Plus '+'
         elif i + 1 < len(regex) and regex[i + 1] == '+':
             new_state = NFAState(char)
             current_state.define_transition(char, new_state)
-            new_state.define_transition(None, current_state)  
-            previous_state = current_state
+            new_state.define_transition(None, current_state)
             current_state = new_state
-            i += 2  
+            i += 2
             continue
 
         elif char == '$':
             current_state.define_transition(None, accept_state)
 
         elif char == '|':
-            new_state = NFAState()
-            current_state.define_transition(None, new_state)
-            previous_state = current_state
-            current_state = new_state
+            # Handling for alternation (|) can be added here
+            pass
 
         else:
             new_state = NFAState(char)
             current_state.define_transition(char, new_state)
-            previous_state = current_state
             current_state = new_state
 
         i += 1
 
     # Linking to accept state
-    if not state_stack:  
+    if not state_stack:
         current_state.define_transition(None, accept_state)
     else:
-        raise ValueError("Unclosed parenthesis in regex")
+        raise ValueError("")
 
     return start_state
 
@@ -115,7 +107,7 @@ def main():
     regex = input("Enter a REGEX: ")
     nfa = regex_to_nfa(regex)
 
-    test_inputs = ["a", 'sss']  #  TEST it here
+    test_inputs = ["ab", 'sss']  #  TEST it here
     for test_input in test_inputs:
         result = "Accepted" if simulate_nfa(nfa, test_input) else "Rejected"
         print(f"Input: {test_input}, Result: {result}")
