@@ -9,8 +9,8 @@ class NFAState:
         self.state_transitions.setdefault(transition_char, set()).add(next_state)
     
     def compute_epsilon_closure(self):
-        closure_set = {self}  # Initialize closure set with the state itself
-        search_stack = [self]  # Stack for depth-first search in the closure set
+        closure_set = {self}  
+        search_stack = [self]  
 
         while search_stack:
             current_state = search_stack.pop()  # Retrieve a state from the stack
@@ -18,15 +18,16 @@ class NFAState:
             for next_state in current_state.state_transitions.get(None, []):
                 if next_state not in closure_set:
                     closure_set.add(next_state)  # Add state to closure set
-                    search_stack.append(next_state)  # Append state for further exploration
+                    search_stack.append(next_state)  
 
-        return closure_set  # Return the computed epsilon closure
-    
+        return closure_set  
+
 #create NFA from regex Initialized start, current and accept state
 def regex_to_nfa(regex):
     start_state = NFAState("start")
     current_state = start_state
     state_stack = []  # Stack to manage groups
+    group_start_stack = []  # Stack to remember the start state of the group
     accept_state = NFAState("accept", final_state=True)
 
     i = 0
@@ -38,23 +39,37 @@ def regex_to_nfa(regex):
             continue
 
         elif char == '*':
-            if current_state:
-                previous_state = state_stack[-1] if state_stack else start_state
-                previous_state.define_transition(None, current_state)
-                current_state.define_transition(None, previous_state)
+            if group_start_stack:
+                group_start_state = group_start_stack.pop()
+                loopback_state = NFAState()
+                skip_state = NFAState()
+
+                # Create a loopback for zero or more occurrences
+                group_start_state.define_transition(None, loopback_state)
+                loopback_state.define_transition(None, skip_state)
+                loopback_state.define_transition(None, group_start_state)
+
+                current_state.define_transition(None, skip_state)
+                current_state = skip_state
+            else:
+                # Handle * for non-grouped characters
+                # Here, you would handle the * quantifier for individual characters
+                pass
             i += 1
             continue
 
         elif char == '(':
             state_stack.append(current_state)
-            new_group_start = NFAState()
-            current_state.define_transition(None, new_group_start)
-            current_state = new_group_start
+            group_start_state = NFAState()
+            current_state.define_transition(None, group_start_state)
+            current_state = group_start_state
+            group_start_stack.append(group_start_state)
 
         elif char == ')':
             if state_stack:
-                group_start_state = state_stack.pop()
                 group_end_state = NFAState()
+                current_state.define_transition(None, group_end_state)
+                current_state = state_stack.pop()
                 current_state.define_transition(None, group_end_state)
                 current_state = group_end_state
             else:
@@ -82,11 +97,10 @@ def regex_to_nfa(regex):
 
         i += 1
 
-    # Linking to accept state
     if not state_stack:
         current_state.define_transition(None, accept_state)
     else:
-        raise ValueError("")
+        raise ValueError("Unclosed parenthesis in regex")
 
     return start_state
 
