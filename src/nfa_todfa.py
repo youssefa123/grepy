@@ -52,3 +52,38 @@ def simulate_dfa(dfa_start_state, input_string):
         else:
             return False
     return current_state.is_final
+
+ # initialize the dictionaries for DFA states and other states 
+def nfa_to_dfa(start_nfa_state):
+    dfa_states = {}
+    processed_states = set()
+    unprocessed_states = [start_nfa_state]
+
+    while unprocessed_states:
+        # Process each NFA state
+        current_nfa_state = unprocessed_states.pop()
+        if current_nfa_state in processed_states:
+            # Skip if already processed
+            continue
+
+        # Make new DFA state if not already created
+        if current_nfa_state not in dfa_states:
+            dfa_state = DFAState(current_nfa_state.final_state)
+            dfa_states[current_nfa_state] = dfa_state
+          
+        # Mark the NFA state as processed
+        processed_states.add(current_nfa_state)
+
+        # transitions for each character
+        for char, next_nfa_state in current_nfa_state.state_transitions.items():
+            
+            #Makw a new DFA state if not existing
+            if next_nfa_state not in dfa_states:
+
+                dfa_states[next_nfa_state] = DFAState(next_nfa_state.final_state)
+            # Add transition to DFA state
+            dfa_states[current_nfa_state].add_transition(char, dfa_states[next_nfa_state])
+            # Add to unprocessed states
+            unprocessed_states.append(next_nfa_state)
+
+    return dfa_states
