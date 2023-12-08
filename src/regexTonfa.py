@@ -8,3 +8,10 @@ class NFAState:
         # transition for a character
         self.state_transitions.setdefault(transition_char, set()).add(next_state)
     
+    
+#create NFA from regex Initialized start, current and accept state
+def regex_to_nfa(regex):
+    start_state = NFAState("start")
+    current_states = [start_state]
+    accept_state = NFAState("accept", final_state=True)
+
