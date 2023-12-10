@@ -32,7 +32,7 @@ def nfa_to_dfa(start_state):
         # Check if the current state includes the state reached after 'a'
         includes_state_after_a = any('a' in state.state_transitions for state in current_dfa_state.nfa_states)
         
-        print(f"Processing DFA State: {current_dfa_state}")  
+          
 
         for input_char in set(char for state in current_dfa_state.nfa_states for char in state.state_transitions if char is not None):
             next_nfa_states = set()
@@ -44,16 +44,16 @@ def nfa_to_dfa(start_state):
                 closure.update(state.compute_epsilon_closure())
 
             next_dfa_state = DFAState(closure)  # Create the next DFA state
-            print(f"  On '{input_char}', Next DFA State: {next_dfa_state}, Closure: {closure}")  
+             
 
             # Check if any state in the closure is final
             if any(state.final_state for state in closure):
                 next_dfa_state.is_final = True
-                print(f"    Marked as Final: {next_dfa_state.is_final}") 
+                 
 
             # Check if the next state is the same as the current state so self-loop
             if next_dfa_state == current_dfa_state:
-                print(f"    Self-loop detected on '{input_char}'")  
+                 
                 current_dfa_state.add_transition(input_char, current_dfa_state)
             else:
                 if next_dfa_state not in states:
@@ -64,8 +64,8 @@ def nfa_to_dfa(start_state):
             dfa[current_dfa_state] = current_dfa_state.transitions  # Updates the DFA structure
 
    
-    for dfa_state, transitions in dfa.items():
-        print(f"DFA State: {dfa_state}, Transitions: {transitions}, Is Final: {dfa_state.is_final}")
+            for dfa_state, transitions in dfa.items():
+                print(f"DFA State: {dfa_state}, Transitions: {transitions}, Is Final: {dfa_state.is_final}")
 
     return dfa  
 
@@ -111,7 +111,7 @@ def main():
     nfa = regex_to_nfa(regex)
     dfa = nfa_to_dfa(nfa)
 
-    test_inputs = ["aba", "a", "sss", 'cccc']  
+    test_inputs = ["aba", "a", "sss", 'c']  
     for test_input in test_inputs:
         result = "Accepted" if simulate_dfa(dfa, test_input) else "Rejected"
         print(f"Input: {test_input}, Result: {result}")
