@@ -68,3 +68,56 @@ def nfa_to_dfa(start_state):
         print(f"DFA State: {dfa_state}, Transitions: {transitions}, Is Final: {dfa_state.is_final}")
 
     return dfa  
+
+
+def simulate_dfa(dfa, test_input):
+    current_state = next(iter(dfa))  # Assuming the first state in the DFA is the start state
+
+    for char in test_input:
+        if char in current_state.transitions:
+            current_state = current_state.transitions[char]  # Transition to the next state
+        else:
+            return False  # Input rejected
+
+    return current_state.is_final  # Check if the final state is reached
+
+
+
+def generate_dot(dfa):
+    dot_output = "digraph DFA {\n"
+    
+    # Ensure all states are in state_names
+    state_names = {}
+    for state in dfa:
+        if state not in state_names:
+            state_names[state] = f"S{len(state_names)}"
+
+    for state, transitions in dfa.items():
+        dot_output += f"    {state_names[state]} [shape={'doublecircle' if state.is_final else 'circle'}];\n"
+        for input_char, next_state in transitions.items():
+            # Check and add next_state to state_names if not present
+            if next_state not in state_names:
+                state_names[next_state] = f"S{len(state_names)}"
+            dot_output += f"    {state_names[state]} -> {state_names[next_state]} [label=\"{input_char}\"];\n"
+
+    dot_output += "}\n"
+    return dot_output
+
+
+
+
+def main():
+    regex = input("Enter a REGEX: ")
+    nfa = regex_to_nfa(regex)
+    dfa = nfa_to_dfa(nfa)
+
+    test_inputs = ["aba", "a", "sss"]  # Test inputs
+    for test_input in test_inputs:
+        result = "Accepted" if simulate_dfa(dfa, test_input) else "Rejected"
+        print(f"Input: {test_input}, Result: {result}")
+
+    dot_output = generate_dot(dfa)
+    print(dot_output)
+
+if __name__ == "__main__":
+    main()
