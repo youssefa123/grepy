@@ -111,7 +111,7 @@ def main():
     nfa = regex_to_nfa(regex)
     dfa = nfa_to_dfa(nfa)
 
-    test_inputs = ["aba", "a", "sss"]  # Test inputs
+    test_inputs = ["aba", "a", "sss", 'cccc']  
     for test_input in test_inputs:
         result = "Accepted" if simulate_dfa(dfa, test_input) else "Rejected"
         print(f"Input: {test_input}, Result: {result}")
