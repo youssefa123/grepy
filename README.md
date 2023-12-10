@@ -16,9 +16,38 @@ C[or]neliusTheC[or]n
 # Testing Regex to NFA 
 Go to the src directory 
 So cd grepy....cd grepy....cd src
-run: python regexTonfa.py
+run: python rungrepy.py
 
-# Convert NFA to DFA 
-go to the src directory and run python rungrepy.py
-It'll prompt you to enter a regex and make a nfa conversion, then it'll ask you again to enter a regex for DFA. Just put the regex and itll make the dot graph and run the text. It runs text from insdie the rungrepy.py file.
+Enter a regex, and it will test the NFA and DFA with the inputFile2.txt strings. 
+
+# From there it tests the NFA, converts the NFA to DFA and tests the data on the inputFile2.txt
+And returns the dot format for DFA.
+
+Example:
+Enter a REGEX: ab
+
+NFA Simulation Results:
+Input: ab, Result: Accepted
+Input: aabb, Result: Rejected
+Input: aaaa, Result: Rejected
+Input: aaabbaaa, Result: Rejected
+DFA State: <nfa_to_dfa.DFAState object at 0x100c60310>, Transitions: {'a': <nfa_to_dfa.DFAState object at 0x100c602b0>}, Is Final: False
+DFA State: <nfa_to_dfa.DFAState object at 0x100c60310>, Transitions: {'a': <nfa_to_dfa.DFAState object at 0x100c602b0>}, Is Final: False
+DFA State: <nfa_to_dfa.DFAState object at 0x100c602b0>, Transitions: {'b': <nfa_to_dfa.DFAState object at 0x100c60250>}, Is Final: False
+
+DFA Simulation Results:
+Input: ab, Result: Accepted
+Input: aabb, Result: Rejected
+Input: aaaa, Result: Rejected
+Input: aaabbaaa, Result: Rejected
+
+DFA in DOT format:
+digraph DFA {
+    S0 [shape=circle];
+    S0 -> S1 [label="a"];
+    S1 [shape=circle];
+    S1 -> S2 [label="b"];
+}
+
+
 
