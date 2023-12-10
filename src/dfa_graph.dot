@@ -1,8 +1,5 @@
 digraph DFA {
     rankdir=LR;
-    size="9,5"
-    node [shape = doublecircle];  S4 ;
+    node [shape = doublecircle];  S2 ;
     node [shape = circle];
-    S0 -> S1 [ label = "a" ];
-    S2 -> S3 [ label = "b" ];
 }

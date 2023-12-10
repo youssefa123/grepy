@@ -24,9 +24,9 @@ class NFAState:
 
 #create NFA from regex 
 def regex_to_nfa(regex):
-    start_state = NFAState("start")  # Initial state of the NFA
+    start_state = NFAState("start")  
     current_state = start_state
-    state_stack = []  # Stack to manage open groups '('
+    state_stack = []  # Stack to manage '('
     group_start_stack = [] 
     accept_state = NFAState("accept", final_state=True)  # Accepting state of the NFA
 
@@ -39,9 +39,10 @@ def regex_to_nfa(regex):
             continue
 
         #special character logic
-
+        # Handle the Kleene star (zero or more occurrences)
         elif char == '*':
             if state_stack:
+                # Inside a group
                 group_start_state = state_stack[-1]
                 loop_state = NFAState()
                 skip_state = NFAState()
@@ -64,44 +65,60 @@ def regex_to_nfa(regex):
             if current_state:
                 plus_state = NFAState()
                 if state_stack:
+                    # gets back the most recently added group start state from the stack
                     group_start_state = state_stack[-1]
+                    #connects the group start state to the new state for one or more occurrences
                     group_start_state.define_transition(None, plus_state)
                     plus_state.define_transition(None, group_start_state)
                 else:
                     previous_state = start_state if current_state == start_state else current_state
+                    #connects the previous state to the new state for one or more occurrences
                     previous_state.define_transition(None, plus_state)
                     plus_state.define_transition(None, previous_state)
                 current_state = plus_state
             i += 1
             continue
-
+        # Handle opening parenthesis '('
         elif char == '(':
+            # Push the current state onto the stack
             state_stack.append(current_state)
+            # Create a new group start state
             new_group_start = NFAState()
             current_state.define_transition(None, new_group_start)
-            current_state = new_group_start
-            group_start_stack.append(new_group_start)
+            # Movews to the new group start state
+            current_state = new_group_start 
+            # Track group start states
+            group_start_stack.append(new_group_start) 
 
         elif char == ')':
-            if state_stack:
+            if state_stack: 
+                # Create a new group end state
                 group_end_state = NFAState()
+                # Pop the group start state from the stack
                 group_start_state = state_stack.pop()
+                # how the epsilon transition from the current state to the group
                 current_state.define_transition(None, group_end_state)
                 group_start_state.define_transition(None, current_state)
+                # Moves to the new group end state
                 current_state = group_end_state
             else:
+                # standalone closing parenthesis
                 new_state = NFAState(char)
                 current_state.define_transition(char, new_state)
                 current_state = new_state
             i += 1
+        
+        #handles characters followed by '+'
         elif i + 1 < len(regex) and regex[i + 1] == '+':
+            # creates a new state for the character
             new_state = NFAState(char)
             current_state.define_transition(char, new_state)
             new_state.define_transition(None, current_state)
             current_state = new_state
             i += 2
             continue
-
+        
+        
         elif char == '$':
             current_state.define_transition(None, accept_state)
 
@@ -115,7 +132,7 @@ def regex_to_nfa(regex):
             current_state = new_state
 
         i += 1
-
+    # Connects the final state of the NFA to the accepting state
     if not state_stack:
         current_state.define_transition(None, accept_state)
     else:
